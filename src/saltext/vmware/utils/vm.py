@@ -660,9 +660,10 @@ def get_disk_size(vm):
         Virtual Machine Object from which to obtain mac address.
     """
     size = 0.0
-    for device in vm.config.hardware.device:
-        if isinstance(device, vim.vm.device.VirtualDisk):
-            size += device.capacityInBytes
+    if vm.config:
+        for device in vm.config.hardware.device:
+            if isinstance(device, vim.vm.device.VirtualDisk):
+                size += device.capacityInBytes
 
     return size
 
@@ -695,9 +696,10 @@ def get_mac_address(vm):
         Virtual Machine Object from which to obtain mac address.
     """
     mac_address = []
-    for device in vm.config.hardware.device:
-        if isinstance(device, vim.vm.device.VirtualEthernetCard):
-            mac_address.append(device.macAddress)
+    if vm.config:
+        for device in vm.config.hardware.device:
+            if isinstance(device, vim.vm.device.VirtualEthernetCard):
+                mac_address.append(device.macAddress)
     return mac_address
 
 
