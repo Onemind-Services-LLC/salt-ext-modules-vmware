@@ -372,7 +372,7 @@ def list_vms(
 
     items = []
     for vm in vms:
-        if not vm["config"].template:
+        if vm.get("config") and not vm["config"].template:
             if host_name:
                 if host == vm["runtime.host"]:
                     items.append(vm["name"])
