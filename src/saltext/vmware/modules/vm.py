@@ -765,3 +765,20 @@ def get_mks_ticket(vm_name, ticket_type, service_instance=None, profile=None):
         ticket = vm_ref.AcquireTicket(ticket_type)
         return json.loads(json.dumps(ticket, cls=VmomiSupport.VmomiJSONEncoder))
     return {}
+
+def get(name, service_instance=None, datacenter_name=None, vm_properties=None, parent_ref=None, traversal_spec=None, profile=None):
+    if service_instance is None:
+        service_instance = connect.get_service_instance(config=__opts__, profile=profile)
+
+    virtual_machine = utils_vm.get_vm_by_property(
+        service_instance,
+        name,
+        datacenter=datacenter_name,
+        vm_properties=vm_properties,
+        traversal_spec=traversal_spec,
+        parent_ref=parent_ref,
+    )
+
+    virtual_machine = json.loads(json.dumps(virtual_machine, cls=VmomiSupport.VmomiJSONEncoder))
+
+    return virtual_machine
