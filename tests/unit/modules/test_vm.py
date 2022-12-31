@@ -260,3 +260,6 @@ def test_when_vm_list_is_given_a_datacenter_name_but_no_cluster_name_then_it_sho
         assert fake_vmodl.query.PropertyCollector.FilterSpec.mock_calls[0].kwargs["objectSet"] == [
             fake_vmodl.query.PropertyCollector.ObjectSpec.return_value
         ]
+
+def test_vm_mks_ticket_should_return_expected_data(fake_service_instance):
+    _, service_instance=fake_service_instance
