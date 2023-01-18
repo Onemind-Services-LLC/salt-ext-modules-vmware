@@ -2702,9 +2702,7 @@ def get(
                             service_instance, nic.spec.distributedVirtualPort.switchUuid
                         ).config.name
                     except AttributeError:
-                        ret[h.name]["vnics"][nic.device][
-                            "distributed_virtual_switch"
-                        ] = None
+                        pass
                 else:
                     ret[h.name]["vnics"][nic.device]["distributed_virtual_portgroup"] = None
                     ret[h.name]["vnics"][nic.device]["distributed_virtual_switch"] = None
