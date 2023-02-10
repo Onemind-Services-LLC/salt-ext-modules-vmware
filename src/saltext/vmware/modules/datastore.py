@@ -140,6 +140,7 @@ def get(
             "type": summary.type,
             "url": summary.url,
             "uncommitted": summary.uncommitted if summary.uncommitted else 0,
+            "hosts": [host for host in datastore.host],
         }
         ret.append(info)
 
