@@ -1,6 +1,7 @@
 # Copyright 2021 VMware, Inc.
 # SPDX-License: Apache-2.0
 import logging
+import json
 
 import saltext.vmware.utils.connect as connect
 import saltext.vmware.utils.datastore as utils_datastore
@@ -8,7 +9,7 @@ import saltext.vmware.utils.datastore as utils_datastore
 log = logging.getLogger(__name__)
 
 try:
-    from pyVmomi import vim
+    from pyVmomi import vim, VmomiSupport
 
     HAS_PYVMOMI = True
 except ImportError:
@@ -140,7 +141,7 @@ def get(
             "type": summary.type,
             "url": summary.url,
             "uncommitted": summary.uncommitted if summary.uncommitted else 0,
-            "hosts": [host.key.name for host in datastore.host],
+            "hosts": [json.loads(json.dumps(host.key, cls=VmomiSupport.VmomiJSONEncoder)) for host in datastore.host],
         }
         ret.append(info)
 
