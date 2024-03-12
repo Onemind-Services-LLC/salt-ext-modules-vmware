@@ -12,7 +12,7 @@ import saltext.vmware.utils.vsphere as utils_vmware
 log = logging.getLogger(__name__)
 
 try:
-    from pyVmomi import vim
+    from pyVmomi import vim, VmomiSupport
 
     HAS_PYVMOMI = True
 except ImportError:
@@ -144,6 +144,7 @@ def get(
             "type": summary.type,
             "url": summary.url,
             "uncommitted": summary.uncommitted if summary.uncommitted else 0,
+            "hosts": [host.key.name for host in datastore.host],
         }
         ret.append(info)
 
