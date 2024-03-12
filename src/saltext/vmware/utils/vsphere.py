@@ -2371,7 +2371,6 @@ def list_folders(service_instance):
 def list_dvs(service_instance, properties=None):
     """
     Returns a list of distributed virtual switches associated with a given service instance.
-
     service_instance
         The Service Instance Object from which to obtain distributed virtual switches.
     properties

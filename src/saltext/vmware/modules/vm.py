@@ -66,6 +66,60 @@ def list_(
     )
 
 
+def get(
+    name,
+    service_instance=None,
+    datacenter_name=None,
+    vm_properties=None,
+    parent_ref=None,
+    traversal_spec=None,
+    profile=None,
+):
+    """
+    Get virtual machine properties based on the traversal specs and properties list,
+    returns Virtual Machine object with properties.
+
+    service_instance
+        Service instance object to access vCenter
+
+    name
+        Name of the virtual machine.
+
+    datacenter
+        Datacenter name
+
+    vm_properties
+        List of vm properties.
+
+    traversal_spec
+        Traversal Spec object(s) for searching.
+
+    parent_ref
+        Container Reference object for searching under a given object.
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' vmware_vm.get vm-01
+    """
+    if service_instance is None:
+        service_instance = connect.get_service_instance(config=__opts__, profile=profile)
+
+    virtual_machine = utils_vm.get_vm_by_property(
+        service_instance,
+        name,
+        datacenter=datacenter_name,
+        vm_properties=vm_properties,
+        traversal_spec=traversal_spec,
+        parent_ref=parent_ref,
+    )
+
+    virtual_machine = json.loads(json.dumps(virtual_machine, cls=VmomiSupport.VmomiJSONEncoder))
+
+    return virtual_machine
+
+
 def list_templates(service_instance=None, profile=None):
     """
     Returns virtual machines tempates.
@@ -688,21 +742,64 @@ def relocate(
     return {"virtual_machine": "failed to move"}
 
 
-def get_mks_ticket(vm_name, ticket_type, service_instance=None, profile=None):
+def network(vm_name, service_instance=None, profile=None):
+    """
+    Retreives the networking for a virtual machine.
+
+    vm_name
+        The name of the virtual machine to relocate.
+
+    service_instance
+        (optional) The Service Instance from which to obtain managed object references.
+
+    profile
+        Profile to use (optional)
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' vmware_vm.network vm_name=vm01
+    """
+    ret = {}
+
+    service_instance = service_instance or connect.get_service_instance(
+        config=__opts__, profile=profile
+    )
+    vm_ref = utils_common.get_mor_by_property(service_instance, vim.VirtualMachine, vm_name)
+
+    network_refs = vm_ref.network
+
+    for network in network_refs:
+        ret[network.name] = {}
+
+        try:
+            ret[network.name]["config"] = network.config
+        except AttributeError:
+            # Fetch the port groups via host configuration attached to the virtual machine
+            host = vm_ref.summary.runtime.host
+            if host.config:
+                for portgroup in host.config.network.portgroup:
+                    if network.name == portgroup.spec.name:
+                        ret[network.name]["config"] = portgroup.spec
+
+    ret = json.loads(json.dumps(ret, cls=VmomiSupport.VmomiJSONEncoder))
+
+    return ret
+
+  def get_mks_ticket(vm_name, ticket_type, service_instance=None, profile=None):
     """
     Get ticket of virtual machine of passed object type.
+
     vm_name
         The name of the virtual machine which has tickets. VM names can be
         found in ``vmware_vm.list``.
+
     ticket_type
         Type of ticket - device, guestControl, guestIntegrity, mks, or webmks.
+
         See https://vdc-download.vmware.com/vmwb-repository/dcr-public/3325c370-b58c-4799-99ff-58ae3baac1bd/45789cc5-aba1-48bc-a320-5e35142b50af/doc/vim.VirtualMachine.TicketType.html
-    service_instance
-        (optional) The Service Instance from which to obtain managed object references.
-    profile
-        Profile to use (optional)
-    CLI Example:
-    .. code-block:: bash
+
         salt '*' vmware_vm.get_mks_ticket vm_name=vm01 ticket_type=webmks
     """
     if service_instance is None:
