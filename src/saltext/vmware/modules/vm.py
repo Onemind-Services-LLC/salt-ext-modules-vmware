@@ -787,7 +787,8 @@ def network(vm_name, service_instance=None, profile=None):
 
     return ret
 
-  def get_mks_ticket(vm_name, ticket_type, service_instance=None, profile=None):
+
+def get_mks_ticket(vm_name, ticket_type, service_instance=None, profile=None):
     """
     Get ticket of virtual machine of passed object type.
 
