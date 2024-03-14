@@ -3148,11 +3148,14 @@ def get(
                     ret[h.name]["vnics"][nic.device][
                         "distributed_virtual_portgroup"
                     ] = nic.spec.distributedVirtualPort.portgroupKey
-                    ret[h.name]["vnics"][nic.device][
-                        "distributed_virtual_switch"
-                    ] = utils_vmware._get_dvs_by_uuid(
-                        service_instance, nic.spec.distributedVirtualPort.switchUuid
-                    ).config.name
+                    try:
+                        ret[h.name]["vnics"][nic.device][
+                            "distributed_virtual_switch"
+                        ] = utils_vmware._get_dvs_by_uuid(
+                            service_instance, nic.spec.distributedVirtualPort.switchUuid
+                        ).config.name
+                    except AttributeError:
+                        ret[h.name]["vnics"][nic.device]["distributed_virtual_switch"] = None
                 else:
                     ret[h.name]["vnics"][nic.device]["distributed_virtual_portgroup"] = None
                     ret[h.name]["vnics"][nic.device]["distributed_virtual_switch"] = None
