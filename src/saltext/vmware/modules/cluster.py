@@ -29,7 +29,7 @@ def __virtual__():
     return __virtualname__
 
 
-def list_(service_instance=None, profile=None):
+def list_(service_instance=None, profile=None, datacenter=None):
     """
     Returns a dictionary containing a list of clusters for each datacenter.
 
@@ -42,7 +42,11 @@ def list_(service_instance=None, profile=None):
         config=__opts__, profile=profile
     )
     try:
-        datacenters = utils_datacenter.get_datacenters(service_instance, get_all_datacenters=True)
+        datacenters = utils_datacenter.get_datacenters(
+            service_instance,
+            datacenter_names=[datacenter] if datacenter else None,
+            get_all_datacenters=not bool(datacenter),
+        )
         for datacenter in datacenters:
             clusters = utils_common.get_mors_with_properties(
                 service_instance,
