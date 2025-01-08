@@ -5,6 +5,7 @@ import os
 
 import salt.exceptions
 import saltext.vmware.utils.common as utils_common
+import saltext.vmware.modules.cluster as cluster
 import saltext.vmware.utils.connect as utils_connect
 import saltext.vmware.utils.esxi as utils_esxi
 import saltext.vmware.utils.vsphere as utils_vmware
@@ -3106,6 +3107,24 @@ def get(
 
         salt '*' vmware_esxi.get dc1 cl1
     """
+    def get_host_cluster(host, service_instance, profile):
+        datacenter_obj = utils_common.get_parent_of_type(host, vim.Datacenter)
+        cluster_obj = utils_common.get_parent_of_type(host, vim.ClusterComputeResource)
+
+        if not cluster_obj:
+            return None
+
+        cluster_info = {"name": cluster_obj.name}
+
+        if datacenter_obj and datacenter_obj.name:
+            cluster_info.update(
+                cluster.get(
+                    cluster_obj.name, datacenter_obj.name, service_instance, profile
+                )
+            )
+
+        return cluster_info
+
     log.debug("Running vmware_esxi.get")
     ret = {}
     service_instance = service_instance or utils_connect.get_service_instance(
@@ -3122,6 +3141,7 @@ def get(
     try:
         for h in hosts:
             ret[h.name] = {}
+            ret[h.name]["cluster"] = get_host_cluster(h, service_instance, profile)
             ret[h.name]["vsan"] = {}
             vsan_manager = h.configManager.vsanSystem
             if vsan_manager:
