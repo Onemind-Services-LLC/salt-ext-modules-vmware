@@ -5,7 +5,6 @@ import os
 
 import salt.exceptions
 import saltext.vmware.utils.common as utils_common
-import saltext.vmware.modules.cluster as cluster
 import saltext.vmware.utils.connect as utils_connect
 import saltext.vmware.utils.esxi as utils_esxi
 import saltext.vmware.utils.vsphere as utils_vmware
@@ -3118,7 +3117,7 @@ def get(
 
         if datacenter_obj and datacenter_obj.name:
             cluster_info.update(
-                cluster.get(
+                __salt__["vmware_cluster.get"](
                     cluster_obj.name, datacenter_obj.name, service_instance, profile
                 )
             )
@@ -3236,16 +3235,18 @@ def get(
                             "switch_name"
                         ] = portgroup.spec.vswitchName
 
+            if h.config and h.config.product:
+                ret[h.name]["product_name"] = h.config.product.name
+                ret[h.name]["product_version"] = h.config.product.version
+                ret[h.name]["product_build"] = h.config.product.build
+                ret[h.name]["product_os_type"] = h.config.product.osType
+
             ret[h.name]["cpu_model"] = h.summary.hardware.cpuModel
             ret[h.name]["num_cpu_cores"] = h.summary.hardware.numCpuCores
             ret[h.name]["num_cpu_pkgs"] = h.summary.hardware.numCpuPkgs
             ret[h.name]["num_cpu_threads"] = h.summary.hardware.numCpuThreads
             ret[h.name]["memory_size"] = h.summary.hardware.memorySize
             ret[h.name]["overall_memory_usage"] = h.summary.quickStats.overallMemoryUsage
-            ret[h.name]["product_name"] = h.config.product.name
-            ret[h.name]["product_version"] = h.config.product.version
-            ret[h.name]["product_build"] = h.config.product.build
-            ret[h.name]["product_os_type"] = h.config.product.osType
             ret[h.name]["host_name"] = h.summary.config.name
             ret[h.name]["system_vendor"] = h.hardware.systemInfo.vendor
             ret[h.name]["system_model"] = h.hardware.systemInfo.model
