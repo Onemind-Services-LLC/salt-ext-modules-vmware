@@ -3260,7 +3260,7 @@ def get(
                     {
                         utils_common.camel_to_snake_case(
                             info.identifierType.key
-                        ): info.identifierValue
+                        ): info.identifierValue if str(info.identifierValue).lower() != "unknown" else None
                     }
                 )
             ret[h.name]["capabilities"] = _get_capability_attribs(host=h)
